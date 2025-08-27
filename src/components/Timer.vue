@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
 
   const timer = ref(1500);
   const status = ref({
@@ -37,6 +37,11 @@
       timer.value = 1500
     }
   }
+  watch(timer, ()=> {
+    if (timer.value === 0){
+      nextTimer()
+    }
+  })
   const formatTimer = (secondsTotal: number): string => {
     let minutes:number = Math.floor(secondsTotal/60);
     let seconds:number = secondsTotal%60;
@@ -52,7 +57,7 @@
 </script>
 
 <template>
-  <main class="w-full/6 bg-white">
+  <main class="w-full/6 bg-white col-span-2">
     <h2 class="px-5 py-2 bg-primary rounded-t-lg text-white text-xl font-bold font-['Switzer']">
       Timer
     </h2>
@@ -72,6 +77,7 @@
         </button>
       </div>
     </div>
+    <!-- Task Component -->
     <div class="p-5">
       <h3 class="w-fit bg-primary rounded-t px-2 py-1 text-white text-base font-bold font-['Switzer']">Tasks</h3>
       <div class="w-full relative h-56 rounded-r rounded-bl bg-amber-50 my-3.5">
@@ -95,7 +101,7 @@
         </ul>
     </div>
     <div class="p-5">
-      <button class="w-full h-7 rounded bg-primary text-white text-base font-bold font-['Switzer']">+Add Task</button>
+      <button class="w-full h-10 rounded bg-primary text-white text-base font-bold font-['Switzer']">+Add Task</button>
     </div>
   </main>
 </template>
