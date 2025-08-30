@@ -2,10 +2,10 @@
 </script>
 
 <template>
-    <nav class="h-20 bg-primary rounded-b-lg flex justify-between items-center p-5 mx-10 mb-4">
+    <nav class="h-15 bg-primary rounded-b-lg flex justify-between items-center p-5 mx-10 mb-4">
         <div class="flex items-center gap-3">
-            <img src="/icon.svg" class="h-10 w-10">
-            <p class="justify-start text-white text-4xl font-bold font-['Nippo']">Mosaic</p>
+            <img src="/icon.svg" class="h-8 w-8">
+            <p class="justify-start text-white text-3xl font-bold font-['Nippo']">Mosaic</p>
         </div>
         <div class="flex items-center gap-4">
             <p class="justify-start text-white text-xl font-bold font-['Switzer']">Username</p>

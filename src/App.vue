@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import Timer from "./components/Timer.vue"
+  import Sidebar from "./components/Sidebar.vue"
   import Navbar from "./components/Navbar.vue"
   import Sandbox from "./components/Sandbox.vue";
 </script>
@@ -8,6 +8,6 @@
   <Navbar />
   <div class="px-10 grid grid-cols-12 gap-4">
     <Sandbox/>
-    <Timer/>
+    <Sidebar/>
   </div>
 </template>
