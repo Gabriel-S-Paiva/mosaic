@@ -1,7 +1,9 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import Mosaic from './Mosaic.vue';
+  import Modal from './Modal.vue';
 
+  const timerSettings = ref(false)
   const timer = ref(1500);
   const status = ref({
     type: "Focus",
@@ -55,9 +57,23 @@
     const timeLeft:string = String(minutes) + ':' + secondsLeft;
     return timeLeft
   }
+
+  const openSettings = () => {
+      timerSettings.value = true;
+  }
 </script>
 
 <template>
+        <div class="px-5 py-2 bg-primary rounded-t-lg flex justify-between">
+          <h2 class=" text-white text-xl font-bold font-['Switzer']">
+              Timer
+          </h2>
+          <div class="flex gap-4">
+              <button @click="openSettings">
+                  <span class="material-symbols-outlined text-white">settings</span>
+              </button>
+          </div>
+      </div>
     <div class="p-5">
       <h3 class="w-fit bg-primary rounded-t px-2 py-1 text-white text-base font-bold font-['Switzer']">{{ status.type }}</h3>
       <Mosaic :timeElapsed="(1500 - timer)" :totalTimer="1500" />
@@ -72,4 +88,8 @@
         </button>
       </div>
     </div>
+
+    <Modal v-if="timerSettings" :title="'Timer'" @close="timerSettings = false">
+
+    </Modal>
 </template>
