@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import Modal from "./Modal.vue";
 
+const isSettingsOpen = ref(false);
+const isHelpOpen = ref(false);
+
 const openSettings = () => {
-    console.log("config")
+    isSettingsOpen.value = true;
 };
 const openHelp = () => {
-    console.log("help")
+    isHelpOpen.value = true;
 }
 </script>
 
@@ -28,7 +32,12 @@ const openHelp = () => {
             <!-- Modules to insert -->
         </section>
     </main>
-    <Modal>
-        
+    <Modal v-if="isHelpOpen" :title="'Help'" @close="isHelpOpen = false">
+        <p>hello im help</p>
+    </Modal>
+    <Modal v-if="isSettingsOpen" :title="'Settings'" @close="isSettingsOpen = false">
+        <form>
+            
+        </form>
     </Modal>
 </template>

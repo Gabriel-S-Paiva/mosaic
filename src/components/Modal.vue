@@ -1,18 +1,33 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-
-const showModal = ref(false);
+const props = defineProps ({
+    title: {
+        type: String,
+        default: 'Modal'
+    },
+})
+const emit = defineEmits(["close"])
 </script>
 
 <template>
-    <div v-if="showModal" class="bg-neutral-900/60 z-999 fixed w-full h-full">
-        <div class="">
-            <h2>title</h2>
-            <div>
-                <p>
-                    content
-                </p>
+    <teleport to="body">
+        <div class="bg-neutral-900/60 absolute flex justify-center items-center top-0 left-0 w-full h-full">
+            <div class="w-80">
+                <div class="px-5 py-2 bg-primary rounded-t-lg flex justify-between">
+                    <h2 class=" text-white text-xl font-bold font-['Switzer']">
+                        {{props.title}}
+                    </h2>
+                    <div class="flex gap-4">
+                        <button @click="emit('close')">
+                            <span class="material-symbols-outlined text-white">close</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white px-5 py-2 rounded-b-lg">
+                    <slot>
+
+                    </slot>
+                </div>
             </div>
         </div>
-    </div>
+    </teleport>
 </template>
