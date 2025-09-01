@@ -6,7 +6,7 @@
 
 <template >
   <Navbar />
-  <div class="px-10 grid grid-cols-12 gap-4">
+  <div class="px-10 grid grid-cols-1 md:grid-cols-12 gap-4">
     <Sandbox/>
     <Sidebar/>
   </div>

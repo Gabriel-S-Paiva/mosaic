@@ -25,8 +25,6 @@
         <!-- Subtasks -->
         </ul>
     </div>
-    <div class="p-5">
-      <button class="w-full h-10 rounded bg-primary text-white text-base font-bold font-['Switzer']">+Add Task</button>
-    </div>
+    <button class="w-full h-10 mb-2 rounded bg-primary text-white text-base font-bold font-['Switzer']">+Add Task</button>
   </div>
 </template>
