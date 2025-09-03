@@ -1,9 +1,7 @@
 <!-- Todo: Fix Timer Settings -->
 <!-- The timer object isn't being updated properly -->
-<!-- Todo: Fix Mosaic Component -->
-<!-- The mosaic "M" pattern isn´t appearing -->
 <script setup lang="ts">
-  import { ref, watch, computed } from 'vue';
+  import { ref, watch } from 'vue';
   import Mosaic from './Mosaic.vue';
   import Modal from './Modal.vue';
 
@@ -41,13 +39,16 @@
           // status.value.type = "Long Break"
           timer.value.time = timerConfig.value.longBreak
           status.value = "Long Break"
-          timer.value.count = 1;
       }else {
         status.value = "Break"
         timer.value.time = timerConfig.value.break
-        timer.value.count ++;
       }
     }else{
+      if(status.value == "Break"){
+        timer.value.count ++;
+      } else {
+        timer.value.count = 1;
+      }
       status.value = "Focus"
       timer.value.time = timerConfig.value.focus
     }
@@ -80,22 +81,6 @@
       nextTimer();
     }
   });
-const draftConfigMinutes = computed({
-  get: () => ({
-    focus: Math.floor(draftConfig.value.focus / 60),
-    break: Math.floor(draftConfig.value.break / 60),
-    longBreak: Math.floor(draftConfig.value.longBreak / 60),
-    nBreak: draftConfig.value.nBreak,
-    goal: draftConfig.value.goal,
-  }),
-  set: (val) => {
-    draftConfig.value.focus = val.focus * 60;
-    draftConfig.value.break = val.break * 60;
-    draftConfig.value.longBreak = val.longBreak * 60;
-    draftConfig.value.nBreak = val.nBreak;
-    draftConfig.value.goal = val.goal;
-  },
-});
 </script>
 
 <template>
@@ -122,19 +107,25 @@ const draftConfigMinutes = computed({
                 <span @click="nextTimer" class="material-symbols-outlined text-white w-full flex items-center">skip_next</span>
             </button>
         </div>
+        <div class="flex justify-between pt-4">
+          <div v-for="done in timerConfig.goal" class="w-7 h-7">
+            <span v-if="done <= timer.count" class=" bg-primary block w-full h-full rounded-full"></span>
+            <span v-else class="bg-gray-600 block w-full h-full rounded-full"></span>
+          </div>
+        </div>
     </div>
     <Modal v-if="timerSettings" :title="'Timer'" @close="timerSettings = false">
         <form class="w-full flex flex-col gap-1 p-3" @submit.prevent>
             <label class="text-base font-['Switzer']">Focus time (min):</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" v-model="draftConfigMinutes.focus"/>
+            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.focus/60)"/>
             <label class="text-base font-['Switzer']">Break time (min):</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" v-model="draftConfigMinutes.break"/>
+            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.break/60)"/>
             <label class="text-base font-['Switzer']">Long break time (min):</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" v-model="draftConfigMinutes.longBreak"/>
+            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.longBreak/60)"/>
             <label class="text-base font-['Switzer']">Number of Breaks:</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" v-model="draftConfigMinutes.nBreak"/>
+            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.nBreak/60)"/>
             <label class="text-base font-['Switzer']">Pomodoro Goal::</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" v-model="draftConfigMinutes.goal">
+            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.goal/60)">
             <div class="w-full flex gap-2 pt-4">
                 <button 
                     type="button"

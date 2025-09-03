@@ -25,15 +25,15 @@ const displayMosaic = computed(() => {
     const nCells = 25
     const fillRatio = props.timeElapsed / props.totalTime;
     const filledCells = Math.floor(fillRatio*nCells);
-    return flatMosaic.map((val, index) => index < filledCells ? val : null)
+    return filledCells;
 })
 </script>
 
 <template>
-    <div class="w-full h-56 rounded-r rounded-bl grid grid-rows-5 grid-cols-5 gap-0.5 bg-offwhite">
-        <div v-for="(cell, index) in displayMosaic" :key="index" class="w-full h-full">
-            <span v-if="cell" class="bg-primary w-full h-full"></span>
-            <span v-else class="bg-dark w-full h-full"></span>
+    <div class="w-full aspect-square rounded-r rounded-bl grid grid-rows-5 grid-cols-5 gap-1 p-1 bg-offwhite">
+        <div v-for="nCell in displayMosaic" class="w-full h-full">
+            <span v-if="flatMosaic[nCell-1]" class="bg-primary block rounded-sm w-full h-full"></span>
+            <span v-else class="bg-dark block rounded-sm w-full h-full"></span>
         </div>
     </div>
 </template>
