@@ -115,33 +115,84 @@
         </div>
     </div>
     <Modal v-if="timerSettings" :title="'Timer'" @close="timerSettings = false">
-        <form class="w-full flex flex-col gap-1 p-3" @submit.prevent>
-            <label class="text-base font-['Switzer']">Focus time (min):</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.focus/60)"/>
-            <label class="text-base font-['Switzer']">Break time (min):</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.break/60)"/>
-            <label class="text-base font-['Switzer']">Long break time (min):</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.longBreak/60)"/>
-            <label class="text-base font-['Switzer']">Number of Breaks:</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.nBreak/60)"/>
-            <label class="text-base font-['Switzer']">Pomodoro Goal::</label>
-            <input class="outline-2 focus:outline-primary focus:outline-4 rounded p-1 " type="number" :value="Math.floor(draftConfig.goal/60)">
-            <div class="w-full flex gap-2 pt-4">
-                <button 
-                    type="button"
-                    class="w-full h-8 text-base font-['Switzer'] bg-red-300 hover:bg-red-400 outline-3 outline-red-600 p-2 rounded flex items-center justify-center"
-                    @click="timerSettings = false"
-                >
-                    Cancelar
-                </button>
-                <button 
-                    type="button" 
-                    class="w-full h-8 text-base font-['Switzer'] bg-green-300 hover:bg-green-400 outline-3 outline-green-600 p-2 rounded flex items-center justify-center" 
-                    @click="updateConfig"
-                >
-                    Confirmar
-                </button>
-            </div>
-        </form> 
+      <form class="w-full flex flex-col gap-4 p-4 bg-white rounded-lg" @submit.prevent>
+        <!-- Focus Time -->
+        <div class="flex flex-col gap-1">
+          <label for="focus-time" class="text-sm font-bold text-primary font-['Switzer']">Focus time (min):</label>
+          <input
+            id="focus-time"
+            type="number"
+            v-model="draftConfig.focus"
+            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter focus time"
+          />
+        </div>
+
+        <!-- Break Time -->
+        <div class="flex flex-col gap-1">
+          <label for="break-time" class="text-sm font-bold text-primary font-['Switzer']">Break time (min):</label>
+          <input
+            id="break-time"
+            type="number"
+            v-model="draftConfig.break"
+            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter break time"
+          />
+        </div>
+
+        <!-- Long Break Time -->
+        <div class="flex flex-col gap-1">
+          <label for="long-break-time" class="text-sm font-bold text-primary font-['Switzer']">Long break time (min):</label>
+          <input
+            id="long-break-time"
+            type="number"
+            v-model="draftConfig.longBreak"
+            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter long break time"
+          />
+        </div>
+
+        <!-- Number of Breaks -->
+        <div class="flex flex-col gap-1">
+          <label for="number-of-breaks" class="text-sm font-bold text-primary font-['Switzer']">Number of Breaks:</label>
+          <input
+            id="number-of-breaks"
+            type="number"
+            v-model="draftConfig.nBreak"
+            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter number of breaks"
+          />
+        </div>
+
+        <!-- Pomodoro Goal -->
+        <div class="flex flex-col gap-1">
+          <label for="pomodoro-goal" class="text-sm font-bold text-primary font-['Switzer']">Pomodoro Goal:</label>
+          <input
+            id="pomodoro-goal"
+            type="number"
+            v-model="draftConfig.goal"
+            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter pomodoro goal"
+          />
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end gap-4 pt-4">
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-bold text-white bg-gray-400 rounded hover:bg-gray-500"
+            @click="timerSettings = false"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-bold text-white bg-primary rounded"
+            @click="updateConfig"
+          >
+            Confirmar
+          </button>
+        </div>
+      </form>
     </Modal>
 </template>

@@ -2,11 +2,11 @@
 import { ref } from 'vue';
 import Modal from "./Modal.vue";
 
-const isSettingsOpen = ref(false);
+const editMode = ref(false);
 const isHelpOpen = ref(false);
 
-const openSettings = () => {
-    isSettingsOpen.value = true;
+const startEdit = () => {
+    editMode.value = true
 };
 const openHelp = () => {
     isHelpOpen.value = true;
@@ -20,8 +20,8 @@ const openHelp = () => {
                 Pomodoro
             </h2>
             <div class="flex gap-4">
-                <button @click="openSettings">
-                    <span class="material-symbols-outlined text-white">settings</span>
+                <button @click="startEdit">
+                    <span class="material-symbols-outlined text-white">edit</span>
                 </button>
                 <button @click="openHelp">
                     <span class="material-symbols-outlined text-white">help</span>
@@ -34,10 +34,5 @@ const openHelp = () => {
     </main>
     <Modal v-if="isHelpOpen" :title="'Help'" @close="isHelpOpen = false">
         <p>hello im help</p>
-    </Modal>
-    <Modal v-if="isSettingsOpen" :title="'Settings'" @close="isSettingsOpen = false">
-        <form>
-            
-        </form>
     </Modal>
 </template>
