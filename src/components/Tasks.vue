@@ -4,7 +4,7 @@ import Modal from './Modal.vue'
 
 const settingsModal = ref(false)
 const addTaskModal = ref(false)
-const tasks = [
+const tasks = ref([
   {
     title: 'Task 1',
     description:'Make tasks work',
@@ -14,31 +14,52 @@ const tasks = [
   },
   {
     title: 'Task 2',
-    description:String,
-    finished:Boolean,
-    time:Number,
-    investedTime:Number
+    description:'Make tasks work',
+    finished:false,
+    time:1,
+    estimatedTime:4
   },
   {
     title: 'Task 3',
-    description:String,
-    finished:Boolean,
-    time:Number,
-    investedTime:Number
+    description:'Make tasks work',
+    finished:false,
+    time:1,
+    estimatedTime:4
   }
-]
-const newTask = {
-  title:null,
-  description:null,
+])
+let newTask = ref({
+  title:'',
+  description:'',
   finished:false,
   time:0,
   estimatedTime:1
-}
+})
 const openSettings = () => {
   settingsModal.value = true;
 }
 const openAddTask = () => {
   addTaskModal.value = true;
+}
+const addTask = () => {
+  tasks.value.push({ ...newTask.value })
+  newTask.value = {
+    title:'',
+    description:'',
+    finished:false,
+    time:0,
+    estimatedTime:1
+  }
+  addTaskModal.value = false
+}
+const cancelTask = () => {
+  newTask.value = {
+    title:'',
+    description:'',
+    finished:false,
+    time:0,
+    estimatedTime:1
+  }
+  addTaskModal.value = false
 }
 </script>
 <template>
@@ -53,21 +74,49 @@ const openAddTask = () => {
     </div>
   </div>
   <div class="px-5 py-2">
-    <h3 class="text-base font-bold font-['Switzer'] py-1">
-      {{ tasks[0].title }}
-    </h3>
-    <p class="text-sm font-normal font-['Switzer']">
-      {{ tasks[0].description }}
-    </p>
-    <div class="p-5 relative">
-      <!--  Progress Bar -->
+    <div v-if="tasks.length > 0" class="mb-4">
+      <h3 class="text-lg font-bold font-['Switzer'] text-primary py-1">
+        {{ tasks[0].title }}
+      </h3>
+      <p class="text-sm font-normal font-['Switzer'] text-gray-600">
+        {{ tasks[0].description }}
+      </p>
+      <div class="pt-5 relative">
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div
+            class="bg-primary h-2 rounded-full"
+            :style="{ width: `${(tasks[0].time / tasks[0].estimatedTime) * 100}%` }"
+          ></div>
+        </div>
+        <p class="text-sm text-gray-500 mt-1">
+          {{ tasks[0].time }} / {{ tasks[0].estimatedTime }} Pomodoros completed
+        </p>
+      </div>
     </div>
-    <div>
-        <ul>
-          <li  v-for="task in tasks">
+
+    <!-- No Tasks Message -->
+    <div v-else class="text-center text-gray-500">
+      <p>No tasks available. Add a new task to get started!</p>
+    </div>
+
+    <!-- Task List -->
+    <div class="mb-4">
+      <h4 class="text-base font-bold font-['Switzer'] text-primary mb-2">Task List</h4>
+      <ul class="space-y-2">
+        <li
+          v-for="(task, index) in tasks"
+          :key="index"
+          class="p-3 bg-white rounded shadow hover:bg-gray-100 cursor-pointer"
+        >
+          <h5 class="text-sm font-bold font-['Switzer'] text-primary">
             {{ task.title }}
-          </li>
-        </ul>
+          </h5>
+          <p class="text-xs text-gray-500">
+            {{ task.description }}
+          </p>
+        </li>
+      </ul>
     </div>
     <button class="w-full h-10 mb-2 rounded bg-primary text-white text-base font-bold font-['Switzer']" @click="openAddTask">+Add Task</button>
   </div>
@@ -97,7 +146,7 @@ const openAddTask = () => {
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label for="time" class="text-sm font-bold text-primary font-['Switzer']">Expected Duration (hours):</label>
+        <label for="time" class="text-sm font-bold text-primary font-['Switzer']">Expected duration (Pomodoros):</label>
         <input
           id="time"
           type="number"
@@ -110,13 +159,14 @@ const openAddTask = () => {
         <button
           type="button"
           class="px-4 py-2 text-sm font-bold text-white bg-gray-400 rounded hover:bg-gray-500"
-          @click="$emit('close')"
+          @click="cancelTask"
         >
           Cancel
         </button>
         <button
-          type="submit"
+          type="button"
           class="px-4 py-2 text-sm font-bold text-white bg-primary rounded"
+          @click="addTask"
         >
           Save Task
         </button>
