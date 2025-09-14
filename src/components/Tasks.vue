@@ -1,48 +1,95 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+// Imports of Components and vue built in function
+import { ref, onMounted } from 'vue'
 import Modal from './Modal.vue'
 
+// Declaration of typescripts interfaces
+interface Task {
+  id: number;
+  title: string;
+  description: string;
+  finished:boolean;
+  time: number;
+  estimatedTime: number;
+}
+
+// Declaration of variables w/placholder data
 const settingsModal = ref(false)
 const addTaskModal = ref(false)
-const tasks = ref([
-  {
-    title: 'Task 1',
-    description:'Make tasks work',
-    finished:false,
-    time:1,
-    estimatedTime:4
-  },
-  {
-    title: 'Task 2',
-    description:'Make tasks work',
-    finished:false,
-    time:1,
-    estimatedTime:4
-  },
-  {
-    title: 'Task 3',
-    description:'Make tasks work',
-    finished:false,
-    time:1,
-    estimatedTime:4
-  }
-])
-let newTask = ref({
-  title:'',
-  description:'',
+const currentTask = ref<Task>({
+  id: 0,
+  title:'No Task Found',
+  description:'This is just a placholder. Lets create a new task',
   finished:false,
   time:0,
   estimatedTime:1
 })
+const tasks = ref([
+  {
+    id: 1,
+    title: 'Task 1',
+    description:'Make tasks work',
+    finished:true,
+    time:1,
+    estimatedTime:4
+  },
+  {
+    id: 2,
+    title: 'Task 2',
+    description:'Improve tasks functionality',
+    finished:false,
+    time:1,
+    estimatedTime:4
+  },
+  {
+    id: 3,
+    title: 'Task 3',
+    description:'Make tasks work',
+    finished:false,
+    time:2,
+    estimatedTime:6
+  }
+] as Task[])
+
+
+// Declaration of functions
 const openSettings = () => {
   settingsModal.value = true;
 }
 const openAddTask = () => {
   addTaskModal.value = true;
 }
+const selectTask = (task: Task) => {
+  currentTask.value = task;
+}
+const getNextId = () => {
+  return tasks.value.length > 0 ?
+  Math.max(...tasks.value.map((task) => task.id)) :
+  1;
+}
+// Exception because the function needs to be declared first for this to work
+const newTask = ref<Task>({
+  id: getNextId(),
+  title:'',
+  description:'',
+  finished:false,
+  time:0,
+  estimatedTime:1
+} as Task)
+const getNextTask = () => {
+  currentTask.value = tasks.value.find(task => !task.finished) || {
+    id: 0,
+    title: 'No Task Found',
+    description: 'This is just a placeholder. Lets create a new task.',
+    finished: false,
+    time: 0,
+    estimatedTime: 1,
+  }
+}
 const addTask = () => {
   tasks.value.push({ ...newTask.value })
   newTask.value = {
+    id: getNextId(),
     title:'',
     description:'',
     finished:false,
@@ -53,6 +100,7 @@ const addTask = () => {
 }
 const cancelTask = () => {
   newTask.value = {
+    id: 0,
     title:'',
     description:'',
     finished:false,
@@ -61,6 +109,11 @@ const cancelTask = () => {
   }
   addTaskModal.value = false
 }
+
+// Run only at the start
+onMounted(() => {
+  getNextTask();
+})
 </script>
 <template>
   <div class="px-5 py-2 bg-primary rounded-t-lg flex justify-between">
@@ -69,28 +122,28 @@ const cancelTask = () => {
     </h2>
     <div class="flex gap-4">
         <button @click="openSettings">
-            <span class="material-symbols-outlined text-white">settings</span>
+            <span class="material-symbols-outlined text-white">edit</span>
         </button>
     </div>
   </div>
   <div class="px-5 py-2">
     <div v-if="tasks.length > 0" class="mb-4">
       <h3 class="text-lg font-bold font-['Switzer'] text-primary py-1">
-        {{ tasks[0].title }}
+        {{ currentTask.title }}
       </h3>
       <p class="text-sm font-normal font-['Switzer'] text-gray-600">
-        {{ tasks[0].description }}
+        {{ currentTask.description }}
       </p>
       <div class="pt-5 relative">
         <!-- Progress Bar -->
         <div class="w-full bg-gray-200 rounded-full h-2">
           <div
             class="bg-primary h-2 rounded-full"
-            :style="{ width: `${(tasks[0].time / tasks[0].estimatedTime) * 100}%` }"
+            :style="{ width: `${(currentTask.time / currentTask.estimatedTime) * 100}%` }"
           ></div>
         </div>
         <p class="text-sm text-gray-500 mt-1">
-          {{ tasks[0].time }} / {{ tasks[0].estimatedTime }} Pomodoros completed
+          {{ currentTask.time }} / {{ currentTask.estimatedTime }} Pomodoros completed
         </p>
       </div>
     </div>
@@ -105,8 +158,9 @@ const cancelTask = () => {
       <h4 class="text-base font-bold font-['Switzer'] text-primary mb-2">Task List</h4>
       <ul class="space-y-2">
         <li
-          v-for="(task, index) in tasks"
+          v-for="(task, index) in tasks.filter(task => !task.finished)"
           :key="index"
+          @click="selectTask(task)"
           class="p-3 bg-white rounded shadow hover:bg-gray-100 cursor-pointer"
         >
           <h5 class="text-sm font-bold font-['Switzer'] text-primary">
@@ -120,7 +174,7 @@ const cancelTask = () => {
     </div>
     <button class="w-full h-10 mb-2 rounded bg-primary text-white text-base font-bold font-['Switzer']" @click="openAddTask">+Add Task</button>
   </div>
-  <Modal v-if="settingsModal" :title="'Tasks'" @close="settingsModal = false">
+  <Modal v-if="settingsModal" :title="'Task Manager'" @close="settingsModal = false">
 
   </Modal>
   <Modal v-if="addTaskModal" :title="'Task'" @close="addTaskModal = false">

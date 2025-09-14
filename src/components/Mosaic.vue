@@ -9,6 +9,10 @@ const props = defineProps ({
     totalTime: {
         type: Number,
         default: 1500
+    },
+    status: {
+        type: String,
+        default: "Focus"
     }
 })
 const mosaic = [
@@ -25,7 +29,7 @@ const displayMosaic = computed(() => {
     const nCells = 25
     const fillRatio = props.timeElapsed / props.totalTime;
     const filledCells = Math.floor(fillRatio*nCells);
-    return filledCells;
+    return props.status=="Focus" ? filledCells: 25;
 })
 </script>
 

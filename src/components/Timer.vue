@@ -96,7 +96,7 @@
     </div>
     <div class="p-5">
         <h3 class="w-fit bg-primary rounded-t px-2 py-1 text-white text-base font-bold font-['Switzer']">{{ status }}</h3>
-        <Mosaic :timeElapsed="(timerConfig.focus - timer.time)" :totalTimer="timerConfig.focus" />
+        <Mosaic :timeElapsed="(timerConfig.focus - timer.time)" :totalTimer="timerConfig.focus" :status="status"/>
         <p class="flex justify-center text-primary text-4xl font-bold font-['Nippo']">{{ formatTimer(timer.time) }}</p>
         <div class="flex flex-col xl:flex-row justify-between gap-6">
             <button class="w-full h-10 bg-primary rounded flex items-center justify-center">
