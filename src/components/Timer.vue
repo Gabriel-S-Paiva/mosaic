@@ -89,7 +89,7 @@
             Timer
         </h2>
         <div class="flex gap-4">
-            <button @click="openSettings">
+            <button @click="openSettings" class="flex items-center justify-center">
                 <span class="material-symbols-outlined text-white">settings</span>
             </button>
         </div>

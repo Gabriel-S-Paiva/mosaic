@@ -109,7 +109,26 @@ const cancelTask = () => {
   }
   addTaskModal.value = false
 }
-
+const completeTask = (task: Task) => {
+  const index = tasks.value.findIndex(t => t.id == task.id)
+  if(index!==-1){
+    tasks.value[index].finished = true;
+  }
+  getNextTask();
+}
+const deleteTask = (task: Task) => {
+  const index = tasks.value.findIndex(t => t.id == task.id)
+  if(index!==-1){
+    tasks.value.splice(index,1)
+  }
+  getNextTask();
+}
+const editTask = (task:Task, newTask:Task) => {
+  const index = tasks.value.findIndex(t => t.id == task.id)
+  if(index!==-1){
+    tasks.value.splice(index,1, newTask)
+  }
+}
 // Run only at the start
 onMounted(() => {
   getNextTask();
@@ -121,32 +140,48 @@ onMounted(() => {
         Tasks
     </h2>
     <div class="flex gap-4">
-        <button @click="openSettings">
-            <span class="material-symbols-outlined text-white">edit</span>
+        <button @click="openSettings" clasS="flex items-center justify-center">
+            <span class="material-symbols-outlined text-white">apps</span>
         </button>
     </div>
   </div>
   <div class="px-5 py-2">
-    <div v-if="tasks.length > 0" class="mb-4">
-      <h3 class="text-lg font-bold font-['Switzer'] text-primary py-1">
-        {{ currentTask.title }}
-      </h3>
-      <p class="text-sm font-normal font-['Switzer'] text-gray-600">
-        {{ currentTask.description }}
-      </p>
-      <div class="pt-5 relative">
-        <!-- Progress Bar -->
-        <div class="w-full bg-gray-200 rounded-full h-2">
-          <div
-            class="bg-primary h-2 rounded-full"
-            :style="{ width: `${(currentTask.time / currentTask.estimatedTime) * 100}%` }"
-          ></div>
-        </div>
-        <p class="text-sm text-gray-500 mt-1">
-          {{ currentTask.time }} / {{ currentTask.estimatedTime }} Pomodoros completed
-        </p>
-      </div>
+<div v-if="tasks.length > 0" class="mb-4">
+  <h3 class="text-lg font-bold font-['Switzer'] text-primary py-1">
+    {{ currentTask.title }}
+  </h3>
+  <p class="text-sm font-normal font-['Switzer'] text-gray-600">
+    {{ currentTask.description }}
+  </p>
+  <div class="pt-5 relative">
+    <!-- Progress Bar -->
+    <div class="w-full bg-gray-200 rounded-full h-2">
+      <div
+        class="bg-primary h-2 rounded-full"
+        :style="{ width: `${(currentTask.time / currentTask.estimatedTime) * 100}%` }"
+      ></div>
     </div>
+    <p class="text-sm text-gray-500 mt-1">
+      {{ currentTask.time }} / {{ currentTask.estimatedTime }} Pomodoros completed
+    </p>
+  </div>
+  <div class="flex justify-end gap-4 mt-4">
+    <button
+      class="p-2 w-full border rounded-xl border-primary flex items-center justify-center"
+      @click="completeTask(currentTask)"
+      aria-label="Complete Task"
+    >
+      <span class="material-symbols-outlined text-primary hover:text-green-600 text-lg">check_circle</span>
+    </button>
+    <button
+      class="p-2 w-full border rounded-xl border-red-500 flex items-center justify-center"
+      @click="deleteTask(currentTask)"
+      aria-label="Delete Task"
+    >
+      <span class="material-symbols-outlined text-red-500 hover:text-red-600 text-lg">delete</span>
+    </button>
+  </div>
+</div>
 
     <!-- No Tasks Message -->
     <div v-else class="text-center text-gray-500">
@@ -158,17 +193,31 @@ onMounted(() => {
       <h4 class="text-base font-bold font-['Switzer'] text-primary mb-2">Task List</h4>
       <ul class="space-y-2">
         <li
-          v-for="(task, index) in tasks.filter(task => !task.finished)"
+          v-for="(task, index) in tasks.filter(t => !t.finished)"
           :key="index"
-          @click="selectTask(task)"
-          class="p-3 bg-white rounded shadow hover:bg-gray-100 cursor-pointer"
+          class="p-3 bg-white rounded shadow hover:bg-gray-100 cursor-pointer flex justify-between items-center"
         >
-          <h5 class="text-sm font-bold font-['Switzer'] text-primary">
-            {{ task.title }}
-          </h5>
-          <p class="text-xs text-gray-500">
-            {{ task.description }}
-          </p>
+          <!-- Task Details -->
+          <div class="flex-1" @click="selectTask(task)">
+            <h5 class="text-sm font-bold font-['Switzer'] text-primary">
+              {{ task.title }}
+            </h5>
+            <p class="text-xs text-gray-500">
+              {{ task.description }}
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2">
+            <!-- Edit Button -->
+            <button
+              class="p-2 border rounded-full border-blue-500 flex items-center justify-center"
+              @click="editTask(task, newTask)"
+              aria-label="Edit Task"
+            >
+              <span class="material-symbols-outlined text-blue-500 hover:text-blue-600 text-lg">edit</span>
+            </button>
+          </div>
         </li>
       </ul>
     </div>

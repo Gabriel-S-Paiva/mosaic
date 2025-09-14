@@ -20,16 +20,16 @@ const openHelp = () => {
                 Pomodoro
             </h2>
             <div class="flex gap-4">
-                <button @click="startEdit">
+                <button @click="startEdit" class="flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">edit</span>
                 </button>
-                <button @click="openHelp">
+                <button @click="openHelp" class="flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">help</span>
                 </button>
             </div>
         </div>
-        <section class="p-5 grid">
-            <!-- Modules to insert -->
+        <section class="p-5 grid grid-cols-5 grid-rows-3 gap-4">
+            <div v-for="n in 15" class="w-full h-60 bg-offwhite rounded-2xl">{{ n }}</div>
         </section>
     </main>
     <Modal v-if="isHelpOpen" :title="'Help'" @close="isHelpOpen = false">
