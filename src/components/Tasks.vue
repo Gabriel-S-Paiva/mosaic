@@ -129,6 +129,10 @@ const editTask = (task:Task, newTask:Task) => {
     tasks.value.splice(index,1, newTask)
   }
 }
+const pomodoroCompleted = () => {
+  currentTask.value.time++;
+}
+defineExpose({pomodoroCompleted})
 // Run only at the start
 onMounted(() => {
   getNextTask();
@@ -158,7 +162,7 @@ onMounted(() => {
     <div class="w-full bg-gray-200 rounded-full h-2">
       <div
         class="bg-primary h-2 rounded-full"
-        :style="{ width: `${(currentTask.time / currentTask.estimatedTime) * 100}%` }"
+        :style="{ width: `${Math.min((currentTask.time / currentTask.estimatedTime) * 100, 100)}%` }"
       ></div>
     </div>
     <p class="text-sm text-gray-500 mt-1">

@@ -14,7 +14,7 @@ const openHelp = () => {
 </script>
 
 <template>
-    <main class="col-span-10 bg-white rounded-lg">
+    <main class="col-span-1 md:col-span-10 bg-white rounded-lg">
         <div class="px-5 py-2 bg-primary rounded-t-lg flex justify-between">
             <h2 class=" text-white text-xl font-bold font-['Switzer']">
                 Pomodoro

@@ -1,7 +1,7 @@
 <!-- Todo: Fix Timer Settings -->
 <!-- The timer object isn't being updated properly -->
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { ref, watch, defineEmits } from 'vue';
   import Mosaic from './Mosaic.vue';
   import Modal from './Modal.vue';
 
@@ -21,6 +21,7 @@
   })
   const draftConfig = ref({ ...timerConfig.value || { focus: 1500, break: 300, longBreak: 600, nBreak: 4, goal: 4 } });
   const isPlaying = ref(false);
+  const emit = defineEmits(['finished'])
   let timeObj:number
   const startTimer = () => {
     isPlaying.value = true
@@ -38,6 +39,7 @@
       if(timer.value.count === timerConfig.value.nBreak){
           // status.value.type = "Long Break"
           timer.value.time = timerConfig.value.longBreak
+          emit('finished')
           status.value = "Long Break"
       }else {
         status.value = "Break"
@@ -71,6 +73,7 @@
       timerSettings.value = true;
   }
   const updateConfig = () => {
+    console.log(draftConfig.value )
     timerConfig.value = { ...draftConfig.value };
     timer.value.isFocus = true;
     timer.value.time = timerConfig.value.focus;
