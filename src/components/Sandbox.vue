@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Modal from "./Modal.vue";
+import Timer from "./Timer.vue"
+import Tasks from './Tasks.vue';
 
 const editMode = ref(false);
 const isHelpOpen = ref(false);
@@ -29,7 +31,9 @@ const openHelp = () => {
             </div>
         </div>
         <section class="p-5 grid grid-cols-5 grid-rows-3 gap-4">
-            <div v-for="n in 15" class="w-full h-60 bg-offwhite rounded-2xl">{{ n }}</div>
+            <Timer/>
+            <Tasks/>
+            <div v-for="n in 13" class="w-full h-60 bg-offwhite rounded-2xl">{{ n }}</div>
         </section>
     </main>
     <Modal v-if="isHelpOpen" :title="'Help'" @close="isHelpOpen = false">

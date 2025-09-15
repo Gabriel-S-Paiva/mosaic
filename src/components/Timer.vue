@@ -87,6 +87,7 @@
 </script>
 
 <template>
+    <div>
     <div class="px-5 py-2 bg-primary rounded-t-lg flex justify-between">
         <h2 class=" text-white text-xl font-bold font-['Switzer']">
             Timer
@@ -198,4 +199,5 @@
         </div>
       </form>
     </Modal>
+    </div>
 </template>
