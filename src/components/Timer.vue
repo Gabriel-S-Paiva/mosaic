@@ -1,7 +1,7 @@
 <!-- Todo: Fix Timer Settings -->
 <!-- The timer object isn't being updated properly -->
 <script setup lang="ts">
-  import { ref, watch, defineEmits } from 'vue';
+  import { ref, watch } from 'vue';
   import Mosaic from './Mosaic.vue';
   import Modal from './Modal.vue';
 
