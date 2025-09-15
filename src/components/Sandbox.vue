@@ -1,24 +1,39 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Modal from "./Modal.vue";
-import Tasks from "./Tasks.vue"
 // Interface Declaration
-interface gridCell {
+interface GridCell {
     id: number,
     groupId?: number,
     component?: string | null,
-
+}
+interface Selection {
+    start:{
+        col:number | null,
+        row:number | null
+    },
+    end:{
+        col:number | null,
+        row:number | null
+    }
 }
 // Variables Declaration
+const selection = ref({
+    start:{
+        col:null,
+        row:null
+    },
+    end:{
+        col:null,
+        row:null
+    }
+} as Selection)
 // Array Creation Variables
-const N_ROWS = 3
-const N_COLS = 5
-let count = 0
+const N_ROWS = 5
+const N_COLS = 3
+let id = 0
+let groupId = 0
 // Drag Interaction Variables
-const isDragging = ref(false);
-const startIndex = ref<{col:number,row:number}|null>(null)
-const endIndex = ref<{col:number,row:number}|null>(null)
-const selectedComponent = ref<string | null>("Timer");
 // Modal Bolean
 const editMode = ref(false);
 const isHelpOpen = ref(false);
@@ -28,118 +43,50 @@ const grid = ref(
         Array.from({ length: N_COLS }, () => ({
             id: getNextId(),
             component: null,
-        } as gridCell))
+        } as GridCell))
     )
 );
 // Functions Declaration
 function getNextId():number {
-    return count++
+    return id++
 }
+function getNextGroupId():number {
+    return groupId++
+}
+const selectComponent = () => {
+    console.log(selection.value)
+    const groupId = getNextGroupId()
+    grid.value.forEach(row => {
+        row.forEach(cell => {
+            const rowIndex = Math.floor(cell.id / N_COLS)
+            const colIndex = cell.id % N_COLS
+            if (
+                selection.value.start.col !== null &&
+                selection.value.end.col !== null &&
+                selection.value.end.col >= colIndex &&
+                colIndex >= selection.value.start.col &&
+                selection.value.start.row !== null &&
+                selection.value.end.row !== null &&
+                selection.value.end.row >= rowIndex &&
+                rowIndex >= selection.value.start.row
+            ) {
+                cell.component = "Timer"
+                cell.groupId = groupId
+            }
+        })
+    })
+};
 const startDrag = (index: number) => {
-    isDragging.value = true;
-
-    const col = index % N_COLS;
-    const row = Math.floor(index / N_COLS);
-
-    startIndex.value = { col, row };
-    endIndex.value = { col, row }; // Initialize endIndex to the same as startIndex
-};
-const dragOver = (index: number) => {
-    if (isDragging.value) {
-        const col = index % N_COLS;
-        const row = Math.floor(index / N_COLS);
-
-        endIndex.value = { col, row };
-    }
-};
-const isCellSelected = (index: number) => {
-    if (startIndex.value === null || endIndex.value === null) return false;
-
-    const col = index % N_COLS;
-    const row = Math.floor(index / N_COLS);
-
-    const rMin = Math.min(startIndex.value.row, endIndex.value.row);
-    const rMax = Math.max(startIndex.value.row, endIndex.value.row);
-    const cMin = Math.min(startIndex.value.col, endIndex.value.col);
-    const cMax = Math.max(startIndex.value.col, endIndex.value.col);
-
-    return row >= rMin && row <= rMax && col >= cMin && col <= cMax;
-};
-const endDrag = () => {
-    isDragging.value = false;
-
-    if (startIndex.value !== null && endIndex.value !== null) {
-        console.log("Selected cells:", getSelectedCells());
-        if (selectedComponent.value) {
-            assignComponent(selectedComponent.value);
-        }
-        showTolltip(); // Show tooltip or perform other actions
-    }
-};
-const getSelectedCells = () => {
-    if (startIndex.value === null || endIndex.value === null) return [];
-
-    const rMin = Math.min(startIndex.value.row, endIndex.value.row);
-    const rMax = Math.max(startIndex.value.row, endIndex.value.row);
-    const cMin = Math.min(startIndex.value.col, endIndex.value.col);
-    const cMax = Math.max(startIndex.value.col, endIndex.value.col);
-
-    const selectedCells = [];
-    for (let row = rMin; row <= rMax; row++) {
-        for (let col = cMin; col <= cMax; col++) {
-            selectedCells.push({ row, col });
-        }
-    }
-    return selectedCells;
-};
-const assignComponent = (component: string) => {
-    if (!editMode.value) {
-        console.log("Edit mode is not enabled.");
-        return;
-    }
-
-    const selectedCells = getSelectedCells(); // Get all selected cells
-    if (selectedCells.length === 0) {
-        console.log("No cells selected.");
-        return;
-    }
-
-    selectedCells.forEach(({ row, col }) => {
-        grid.value[row][col].component = component; // Assign the component to the selected cell
-    });
-
-    console.log(`Assigned component "${component}" to selected cells.`);
-};
-// Modal functions
-const startEdit = () => {
-    editMode.value = true
-};
-const openHelp = () => {
-    isHelpOpen.value = true;
+    const row = Math.floor(index / N_COLS)
+    const col = index % N_COLS
+    selection.value.start = {col:col, row:row}
 }
-const showTolltip = () => {
-
+const endDrag = (index: number) => {
+    const row = Math.floor(index / N_COLS)
+    const col = index % N_COLS
+    selection.value.end = {col:col, row:row}
+    selectComponent();
 }
-//! This method is deprecated moved into and drag alternative isntead of an click one
-const tryEdit = (cellId: number) => {
-    if (editMode.value) {
-        // Calculate row and column from cellId
-        const startRow = Math.floor(cellId / N_COLS); // Divide by the number of columns
-        const startCol = cellId % N_COLS; // Modulo gives the column index
-
-        // Update the startIndex with the calculated row and column
-        if (startIndex.value === null) {
-            startIndex.value = { row: startRow, col: startCol };
-        } else {
-            startIndex.value.row = startRow;
-            startIndex.value.col = startCol;
-        }
-
-        console.log(`Editing started at Row: ${startRow}, Col: ${startCol}`);
-    } else {
-        console.log("Edit mode is not enabled.");
-    }
-};
 </script>
 
 <template>
@@ -149,37 +96,34 @@ const tryEdit = (cellId: number) => {
                 Pomodoro
             </h2>
             <div class="flex gap-4">
-                <button @click="startEdit" class="flex items-center justify-center">
+                <button @click="editMode = !editMode" class="flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">edit</span>
                 </button>
-                <button @click="openHelp" class="flex items-center justify-center">
+                <button @click="isHelpOpen = true" class="flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">help</span>
                 </button>
             </div>
         </div>
         <section class="p-5 grid grid-cols-5 grid-rows-3 gap-4">
             <div
-                v-for="(cell, index) in grid.flat()"
-                :key="cell.id"
-                class="w-full h-60 bg-offwhite rounded-2xl"
-                @mousedown="startDrag(index)"
-                @mousemove="dragOver(index)"
-                @mouseup="endDrag"
-                :class="{
-                    'bg-blue-200': isCellSelected(index),
-                }"
+                v-for="(row, rowIndex) in grid"
+                :key="rowIndex"
             >
-                {{ cell.component }}
-                <component v-if="cell.component" :is="cell.component" />
+                <div
+                    v-for="(cell, colIndex) in row"
+                    :key="cell.id"
+                    @mousedown="startDrag(rowIndex * N_COLS + colIndex)"
+                    @mouseup="endDrag(rowIndex * N_COLS + colIndex)"
+                    class="w-full h-60 bg-offwhite rounded-2xl"
+                    :class="{
+                        'bg-blue-200': cell.groupId !== undefined,
+                    }"
+                >
+                {{ cell }}
+                    <component v-if="cell.component" :is="cell.component"></component>
+                </div>
             </div>
-        </section>
-        <div v-if="editMode" class="p-4">
-            <label for="component-select">Select Component:</label>
-            <select id="component-select" v-model="selectedComponent">
-                <option value="Timer">Timer</option>
-                <option value="Task">Task</option>
-            </select>
-        </div>  
+        </section> 
     </main>
     <Modal v-if="isHelpOpen" :title="'Help'" @close="isHelpOpen = false">
         <p>hello im help</p>
