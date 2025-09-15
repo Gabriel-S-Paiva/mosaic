@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Modal from "./Modal.vue";
+import Tasks from "./Tasks.vue"
 // Interface Declaration
 interface gridCell {
     id: number,
@@ -168,6 +169,7 @@ const tryEdit = (cellId: number) => {
                     'bg-blue-200': isCellSelected(index),
                 }"
             >
+                {{ cell.component }}
                 <component v-if="cell.component" :is="cell.component" />
             </div>
         </section>
