@@ -16,6 +16,7 @@ interface Task {
 // Declaration of variables w/placholder data
 const settingsModal = ref(false)
 const addTaskModal = ref(false)
+const editTaskModal = ref(false)
 const currentTask = ref<Task>({
   id: 0,
   title:'No Task Found',
@@ -50,7 +51,14 @@ const tasks = ref([
     estimatedTime:6
   }
 ] as Task[])
-
+const taskToEdit = ref<Task >({
+  id: -1,
+  title:'',
+  description:'',
+  finished:false,
+  time:0,
+  estimatedTime:1
+});
 
 // Declaration of functions
 const openSettings = () => {
@@ -58,6 +66,10 @@ const openSettings = () => {
 }
 const openAddTask = () => {
   addTaskModal.value = true;
+}
+const openEditTask = (task: Task) => {
+  taskToEdit.value = {...task}
+  editTaskModal.value = true;
 }
 const selectTask = (task: Task) => {
   currentTask.value = task;
@@ -123,11 +135,12 @@ const deleteTask = (task: Task) => {
   }
   getNextTask();
 }
-const editTask = (task:Task, newTask:Task) => {
-  const index = tasks.value.findIndex(t => t.id == task.id)
+const editTask = (updatedTask:Task) => {
+  const index = tasks.value.findIndex(t => t.id == updatedTask.id)
   if(index!==-1){
-    tasks.value.splice(index,1, newTask)
+    tasks.value.splice(index,1, updatedTask)
   }
+  editTaskModal.value = false;
 }
 const pomodoroCompleted = () => {
   currentTask.value.time++;
@@ -210,25 +223,80 @@ onMounted(() => {
               {{ task.description }}
             </p>
           </div>
-
-          <!-- Action Buttons -->
-          <div class="flex gap-2">
-            <!-- Edit Button -->
-            <button
-              class="p-2 border rounded-full border-blue-500 flex items-center justify-center"
-              @click="editTask(task, newTask)"
-              aria-label="Edit Task"
-            >
-              <span class="material-symbols-outlined text-blue-500 hover:text-blue-600 text-lg">edit</span>
-            </button>
-          </div>
         </li>
       </ul>
     </div>
     <button class="w-full h-10 mb-2 rounded bg-primary text-white text-base font-bold font-['Switzer']" @click="openAddTask">+Add Task</button>
   </div>
   <Modal v-if="settingsModal" :title="'Task Manager'" @close="settingsModal = false">
+    <div class="flex flex-col gap-4 p-4">
+    <!-- Statistics Section -->
+    <div class="bg-gray-100 p-4 rounded-lg shadow">
+      <h3 class="text-lg font-bold font-['Switzer'] text-primary mb-2">Statistics</h3>
+      <p class="text-sm text-gray-600">Total Tasks: {{ tasks.length }}</p>
+      <p class="text-sm text-gray-600">Completed Tasks: {{ tasks.filter(task => task.finished).length }}</p>
+      <p class="text-sm text-gray-600">In Progress: {{ tasks.filter(task => !task.finished).length }}</p>
+    </div>
 
+    <!-- Tasks in Progress Section -->
+    <div class="bg-gray-100 p-4 rounded-lg shadow">
+      <h3 class="text-lg font-bold font-['Switzer'] text-primary mb-2">Tasks in Progress</h3>
+      <ul class="space-y-2">
+        <li
+          v-for="(task, index) in tasks.filter(task => !task.finished)"
+          :key="index"
+          class="p-3 bg-white rounded shadow flex justify-between items-center"
+        >
+          <div>
+            <h5 class="text-sm font-bold font-['Switzer'] text-primary">{{ task.title }}</h5>
+            <p class="text-xs text-gray-500">{{ task.description }}</p>
+          </div>
+          <div class="flex gap-2">
+            <button
+              class="p-2 border rounded-full border-blue-500 flex items-center justify-center"
+              @click="openEditTask(task)"
+              aria-label="Edit Task"
+            >
+              <span class="material-symbols-outlined text-blue-500 hover:text-blue-600 text-lg">edit</span>
+            </button>
+            <button
+              class="p-2 border rounded-full border-red-500 flex items-center justify-center"
+              @click="deleteTask(task)"
+              aria-label="Delete Task"
+            >
+              <span class="material-symbols-outlined text-red-500 hover:text-red-600 text-lg">delete</span>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Completed Tasks Section -->
+    <div class="bg-gray-100 p-4 rounded-lg shadow">
+      <h3 class="text-lg font-bold font-['Switzer'] text-primary mb-2">Completed Tasks</h3>
+      <ul class="space-y-2">
+        <li
+          v-for="(task, index) in tasks.filter(task => task.finished)"
+          :key="index"
+          class="p-3 bg-white rounded shadow flex justify-between items-center"
+        >
+          <div>
+            <h5 class="text-sm font-bold font-['Switzer'] text-primary">{{ task.title }}</h5>
+            <p class="text-xs text-gray-500">{{ task.description }}</p>
+          </div>
+          <div class="flex gap-2">
+            <button
+              class="p-2 border rounded-full border-red-500 flex items-center justify-center"
+              @click="deleteTask(task)"
+              aria-label="Delete Task"
+            >
+              <span class="material-symbols-outlined text-red-500 hover:text-red-600 text-lg">delete</span>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
   </Modal>
   <Modal v-if="addTaskModal" :title="'Task'" @close="addTaskModal = false">
         <form class="flex flex-col gap-4 p-4">
@@ -279,5 +347,62 @@ onMounted(() => {
         </button>
       </div>
     </form>
+  </Modal>
+  <Modal v-if="editTaskModal" :title="'Edit Task'" @close="editTaskModal = false">
+      <form class="flex flex-col gap-4 p-4">
+        <!-- Title Input -->
+        <div class="flex flex-col gap-1">
+          <label for="edit-title" class="text-sm font-bold text-primary font-['Switzer']">Title:</label>
+          <input
+            id="edit-title"
+            type="text"
+            v-model="taskToEdit.title"
+            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter task title"
+          />
+        </div>
+
+        <!-- Description Input -->
+        <div class="flex flex-col gap-1">
+          <label for="edit-description" class="text-sm font-bold text-primary font-['Switzer']">Description:</label>
+          <input
+            id="edit-description"
+            type="text"
+            v-model="taskToEdit.description"
+            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter task description"
+          />
+        </div>
+
+        <!-- Estimated Time Input -->
+        <div class="flex flex-col gap-1">
+          <label for="edit-time" class="text-sm font-bold text-primary font-['Switzer']">Expected duration (Pomodoros):</label>
+          <input
+            id="edit-time"
+            type="number"
+            v-model="taskToEdit.estimatedTime"
+            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter estimated time"
+          />
+        </div>
+
+        <!-- Modal Buttons -->
+        <div class="flex justify-end gap-4">
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-bold text-white bg-gray-400 rounded hover:bg-gray-500"
+            @click="editTaskModal = false"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-bold text-white bg-primary rounded"
+            @click="editTask(taskToEdit)"
+          >
+            Save Changes
+          </button>
+        </div>
+      </form>
   </Modal>
 </template>
