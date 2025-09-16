@@ -1,51 +1,84 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Modal from "./Modal.vue";
 // Interface Declaration
 interface GridCell {
     width:number,
     height:number,
-    component:string,
+    col:number,
+    row:number,
+    component:string|null,
 }
 // Variables Declaration
-const sandBoxCells = ref(Array.from({ length: 15 }, () => ({
-    width: 1,
-    height: 1,
-    component: 'Empty',
-} as GridCell)));
-
-const startCell = ref<null | number>(null)
+const ROWS = 3;
+const COLS = 5;
+const sandBoxCells = ref(
+    Array.from({ length: ROWS }, (_, r) =>
+        Array.from({ length: COLS }, (_, c) => ({
+            width: 1,
+            height: 1,
+            col:c,
+            row:r,
+            component: 'Empty',
+        } as GridCell))
+    )
+);
+console.log(sandBoxCells.value)
+const startCell = ref<null | {row:number,col:number}>(null)
 const editMode = ref(false);
 const isHelpOpen = ref(false);
 // Functions Declaration
-const startDrag = (index:number) => {
-    if(!editMode.value) return
+const startDrag = (cell: GridCell) => {
+    if (!editMode.value) return;
 
-    startCell.value = index
-}
-const endDrag = (index:number) => {
-    if(startCell.value === null) return
+    startCell.value = { row: cell.row, col: cell.col };
+};
 
-    const colStart = Math.min(startCell.value % 5, index % 5);
-    const colEnd = Math.max(startCell.value % 5, index % 5);
-    const rowStart = Math.min(Math.floor(startCell.value / 5), Math.floor(index / 5));
-    const rowEnd = Math.max(Math.floor(startCell.value / 5), Math.floor(index / 5));
+const endDrag = (cell: GridCell) => {
+    if (!startCell.value) return;
+
+   const colStart = Math.min(startCell.value.col, cell.col);
+    const colEnd = Math.max(startCell.value.col, cell.col);
+    const rowStart = Math.min(startCell.value.row, cell.row);
+    const rowEnd = Math.max(startCell.value.row, cell.row);
 
     console.log("colStart:", colStart, "colEnd:", colEnd);
     console.log("rowStart:", rowStart, "rowEnd:", rowEnd);
-    console.log("width:", colEnd - colStart + 1, "height:", rowEnd - rowStart + 1);
 
     const newGridCell = {
-        width:(colEnd - colStart + 1),
-        height:(rowEnd - rowStart + 1),
-        component:'Hello'
-    } as GridCell
+        width: colEnd - colStart + 1,
+        col: colStart,
+        height: rowEnd - rowStart + 1,
+        row: rowStart,
+        component: 'Hello',
+    } as GridCell;
 
-    const area = newGridCell.height * newGridCell.width
-    sandBoxCells.value.splice(startCell.value, area, newGridCell)
+    sandBoxCells.value.forEach(row => {
+        row.forEach(cell => {
+            if (cell.col === newGridCell.col && cell.row === newGridCell.row) {
+                // Set the anchor cell
+                cell.width = newGridCell.width;
+                cell.height = newGridCell.height;
+                cell.component = newGridCell.component;
+            } else if (
+                cell.col >= colStart &&
+                cell.col <= colEnd &&
+                cell.row >= rowStart &&
+                cell.row <= rowEnd
+            ) {
+                // Mark other cells as occupied
+                cell.component = null;
+            }
+        });
+    });
+
+    console.log(sandBoxCells.value);
     startCell.value = null;
-    console.log(sandBoxCells.value)
 }
+
+const visibleCells = computed(() =>
+    sandBoxCells.value.flat().filter(cell => cell.component !== null)
+);
 </script>
 
 <template>
@@ -65,10 +98,10 @@ const endDrag = (index:number) => {
         </div>
         <section class="p-5 grid grid-cols-5 grid-rows-3 gap-4">
             <div
-                v-for="(cell,index) in sandBoxCells"
+                v-for="(cell, index) in visibleCells"
                 :key="index"
-                @mousedown="startDrag(index)"
-                @mouseup="endDrag(index)"
+                @mousedown="startDrag(cell)"
+                @mouseup="endDrag(cell)"
                 :class="[
                     cell.width === 1 ? 'col-span-1' : '',
                     cell.width === 2 ? 'col-span-2' : '',
@@ -84,7 +117,8 @@ const endDrag = (index:number) => {
                     'rounded-2xl'
                 ]"
             >
-                {{ index }}
+                {{ cell.col }}
+                {{ cell.row }}
                 {{ cell.component }}
             </div>
         </section> 
