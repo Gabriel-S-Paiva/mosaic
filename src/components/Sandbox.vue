@@ -3,101 +3,59 @@ import { ref } from 'vue';
 import Modal from "./Modal.vue";
 // Interface Declaration
 interface GridCell {
-    id: number,
-    groupId?: number,
-    component?: string | null,
-}
-interface Selection {
-    start:{
-        col:number | null,
-        row:number | null
-    },
-    end:{
-        col:number | null,
-        row:number | null
-    }
+    width:number,
+    height:number,
+    component:string,
 }
 // Variables Declaration
-const selection = ref({
-    start:{
-        col:null,
-        row:null
-    },
-    end:{
-        col:null,
-        row:null
-    }
-} as Selection)
-// Array Creation Variables
-const N_ROWS = 5
-const N_COLS = 3
-let id = 0
-let groupId = 0
-// Drag Interaction Variables
-// Modal Bolean
+const sandBoxCells = ref(Array.from({ length: 15 }, () => ({
+    width: 1,
+    height: 1,
+    component: 'Empty',
+} as GridCell)));
+
+const startCell = ref<null | number>(null)
 const editMode = ref(false);
 const isHelpOpen = ref(false);
-// Array Creation
-const grid = ref(
-    Array.from({ length: N_ROWS }, () =>
-        Array.from({ length: N_COLS }, () => ({
-            id: getNextId(),
-            component: null,
-        } as GridCell))
-    )
-);
 // Functions Declaration
-function getNextId():number {
-    return id++
+const startDrag = (index:number) => {
+    if(!editMode.value) return
+
+    startCell.value = index
 }
-function getNextGroupId():number {
-    return groupId++
-}
-const selectComponent = () => {
-    console.log(selection.value)
-    const groupId = getNextGroupId()
-    grid.value.forEach(row => {
-        row.forEach(cell => {
-            const rowIndex = Math.floor(cell.id / N_COLS)
-            const colIndex = cell.id % N_COLS
-            if (
-                selection.value.start.col !== null &&
-                selection.value.end.col !== null &&
-                selection.value.end.col >= colIndex &&
-                colIndex >= selection.value.start.col &&
-                selection.value.start.row !== null &&
-                selection.value.end.row !== null &&
-                selection.value.end.row >= rowIndex &&
-                rowIndex >= selection.value.start.row
-            ) {
-                cell.component = "Timer"
-                cell.groupId = groupId
-            }
-        })
-    })
-};
-const startDrag = (index: number) => {
-    const row = Math.floor(index / N_COLS)
-    const col = index % N_COLS
-    selection.value.start = {col:col, row:row}
-}
-const endDrag = (index: number) => {
-    const row = Math.floor(index / N_COLS)
-    const col = index % N_COLS
-    selection.value.end = {col:col, row:row}
-    selectComponent();
+const endDrag = (index:number) => {
+    if(startCell.value === null) return
+
+    const colStart = Math.min(startCell.value % 5, index % 5);
+    const colEnd = Math.max(startCell.value % 5, index % 5);
+    const rowStart = Math.min(Math.floor(startCell.value / 5), Math.floor(index / 5));
+    const rowEnd = Math.max(Math.floor(startCell.value / 5), Math.floor(index / 5));
+
+    console.log("colStart:", colStart, "colEnd:", colEnd);
+    console.log("rowStart:", rowStart, "rowEnd:", rowEnd);
+    console.log("width:", colEnd - colStart + 1, "height:", rowEnd - rowStart + 1);
+
+    const newGridCell = {
+        width:(colEnd - colStart + 1),
+        height:(rowEnd - rowStart + 1),
+        component:'Hello'
+    } as GridCell
+
+    const area = newGridCell.height * newGridCell.width
+    sandBoxCells.value.splice(startCell.value, area, newGridCell)
+    startCell.value = null;
 }
 </script>
 
 <template>
-    <main class="col-span-1 md:col-span-10 bg-white rounded-lg">
+    <main class="col-span-1 h-min md:col-span-10 bg-white rounded-lg">
         <div class="px-5 py-2 bg-primary rounded-t-lg flex justify-between">
             <h2 class=" text-white text-xl font-bold font-['Switzer']">
                 Pomodoro
             </h2>
             <div class="flex gap-4">
                 <button @click="editMode = !editMode" class="flex items-center justify-center">
-                    <span class="material-symbols-outlined text-white">edit</span>
+                    <span class="material-symbols-outlined text-white">{{editMode ? 'check' : 'edit'}}</span>
                 </button>
                 <button @click="isHelpOpen = true" class="flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">help</span>
@@ -106,22 +64,21 @@ const endDrag = (index: number) => {
         </div>
         <section class="p-5 grid grid-cols-5 grid-rows-3 gap-4">
             <div
-                v-for="(row, rowIndex) in grid"
-                :key="rowIndex"
+                v-for="(cell,index) in sandBoxCells"
+                :key="index"
+                @mousedown="startDrag(index)"
+                @mouseup="endDrag(index)"
+                :class="[
+                    `col-span-${cell.width}`,
+                    `row-span-${cell.height}`,
+                    'w-full',
+                    'min-h-55',
+                    'bg-offwhite',
+                    'rounded-2xl'
+                ]"
             >
-                <div
-                    v-for="(cell, colIndex) in row"
-                    :key="cell.id"
-                    @mousedown="startDrag(rowIndex * N_COLS + colIndex)"
-                    @mouseup="endDrag(rowIndex * N_COLS + colIndex)"
-                    class="w-full h-60 bg-offwhite rounded-2xl"
-                    :class="{
-                        'bg-blue-200': cell.groupId !== undefined,
-                    }"
-                >
-                {{ cell }}
-                    <component v-if="cell.component" :is="cell.component"></component>
-                </div>
+                {{ index }}
+                {{ cell.component }}
             </div>
         </section> 
     </main>
