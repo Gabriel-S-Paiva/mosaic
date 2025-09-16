@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import Modal from "./Modal.vue";
+import Timer from "./Timer.vue"
 // Interface Declaration
 interface GridCell {
     width:number,
@@ -9,6 +10,10 @@ interface GridCell {
     row:number,
     component:string|null,
 }
+const componentMap: Record<string, any> = {
+    Timer, // Maps 'Timer' to the imported Timer component
+    Empty: null, // Maps 'Empty' to null (or a placeholder component if needed)
+};
 // Variables Declaration
 const ROWS = 3;
 const COLS = 5;
@@ -49,7 +54,7 @@ const endDrag = (cell: GridCell) => {
         col: colStart,
         height: rowEnd - rowStart + 1,
         row: rowStart,
-        component: 'Hello',
+        component: 'Timer',
     } as GridCell;
 
     sandBoxCells.value.forEach(row => {
@@ -130,9 +135,7 @@ const visibleCells = computed(() =>
                     'rounded-2xl'
                 ]"
             >
-                {{ cell.col }}
-                {{ cell.row }}
-                {{ cell.component }}
+                <component :is="componentMap[cell.component ?? 'Empty']"/>
             </div>
         </section> 
     </main>
