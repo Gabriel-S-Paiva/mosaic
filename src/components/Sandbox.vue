@@ -33,7 +33,6 @@ const startDrag = (cell: GridCell) => {
 
     startCell.value = { row: cell.row, col: cell.col };
 };
-
 const endDrag = (cell: GridCell) => {
     if (!startCell.value) return;
 
@@ -75,6 +74,17 @@ const endDrag = (cell: GridCell) => {
     console.log(sandBoxCells.value);
     startCell.value = null;
 }
+const resetGrid = () => {
+    sandBoxCells.value = Array.from({ length: ROWS }, (_, r) =>
+        Array.from({ length: COLS }, (_, c) => ({
+            width: 1,
+            height: 1,
+            col: c,
+            row: r,
+            component: 'Empty',
+        } as GridCell))
+    );
+};
 
 const visibleCells = computed(() =>
     sandBoxCells.value.flat().filter(cell => cell.component !== null)
@@ -90,6 +100,9 @@ const visibleCells = computed(() =>
             <div class="flex gap-4">
                 <button @click="editMode = !editMode" class="flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">{{editMode ? 'check' : 'edit'}}</span>
+                </button>
+                <button v-if="editMode" @click="resetGrid()" class="flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white">replay</span>
                 </button>
                 <button @click="isHelpOpen = true" class="flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">help</span>
