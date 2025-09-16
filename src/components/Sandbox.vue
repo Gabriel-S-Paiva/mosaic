@@ -44,6 +44,7 @@ const endDrag = (index:number) => {
     const area = newGridCell.height * newGridCell.width
     sandBoxCells.value.splice(startCell.value, area, newGridCell)
     startCell.value = null;
+    console.log(sandBoxCells.value)
 }
 </script>
 
@@ -69,8 +70,14 @@ const endDrag = (index:number) => {
                 @mousedown="startDrag(index)"
                 @mouseup="endDrag(index)"
                 :class="[
-                    `col-span-${cell.width}`,
-                    `row-span-${cell.height}`,
+                    cell.width === 1 ? 'col-span-1' : '',
+                    cell.width === 2 ? 'col-span-2' : '',
+                    cell.width === 3 ? 'col-span-3' : '',
+                    cell.width === 4 ? 'col-span-4' : '',
+                    cell.width === 5 ? 'col-span-5' : '',
+                    cell.height === 1 ? 'row-span-1' : '',
+                    cell.height === 2 ? 'row-span-2' : '',
+                    cell.height === 3 ? 'row-span-3' : '',
                     'w-full',
                     'min-h-55',
                     'bg-offwhite',
