@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import Modal from "./Modal.vue";
-import Timer from "./Timer.vue"
+import Timer from "./Timer.vue";
+import Notes from "./Notes.vue"
 // Interface Declaration
 interface GridCell {
     width:number,
@@ -11,8 +12,9 @@ interface GridCell {
     component:string|null,
 }
 const componentMap: Record<string, any> = {
-    Timer, // Maps 'Timer' to the imported Timer component
-    Empty: null, // Maps 'Empty' to null (or a placeholder component if needed)
+    Timer,
+    Notes,
+    Empty: null,
 };
 // Variables Declaration
 const ROWS = 3;
@@ -30,15 +32,27 @@ const sandBoxCells = ref(
 );
 console.log(sandBoxCells.value)
 const startCell = ref<null | {row:number,col:number}>(null)
+const selectedComponent = ref<string | null>(null);
 const editMode = ref(false);
 const isHelpOpen = ref(false);
+const isSelectOpen = ref(false)
 // Functions Declaration
+const waitForComponentSelection = (): Promise<string> => {
+    return new Promise((resolve) => {
+        const unwatch = watch(selectedComponent, (value) => {
+            if (value !== null) {
+                unwatch(); // Stop watching once a component is selected
+                resolve(value); // Resolve the promise with the selected component
+            }
+        });
+    });
+};
 const startDrag = (cell: GridCell) => {
     if (!editMode.value) return;
 
     startCell.value = { row: cell.row, col: cell.col };
 };
-const endDrag = (cell: GridCell) => {
+const endDrag = async (cell: GridCell) => {
     if (!startCell.value) return;
 
    const colStart = Math.min(startCell.value.col, cell.col);
@@ -49,34 +63,38 @@ const endDrag = (cell: GridCell) => {
     console.log("colStart:", colStart, "colEnd:", colEnd);
     console.log("rowStart:", rowStart, "rowEnd:", rowEnd);
 
+    openSelect()
+    const component = await waitForComponentSelection();
+
     const newGridCell = {
         width: colEnd - colStart + 1,
         col: colStart,
         height: rowEnd - rowStart + 1,
         row: rowStart,
-        component: 'Timer',
+        component: component,
     } as GridCell;
 
-    sandBoxCells.value.forEach(row => {
-        row.forEach(cell => {
-            if (cell.col === newGridCell.col && cell.row === newGridCell.row) {
-                // Set the anchor cell
-                cell.width = newGridCell.width;
-                cell.height = newGridCell.height;
-                cell.component = newGridCell.component;
-            } else if (
-                cell.col >= colStart &&
-                cell.col <= colEnd &&
-                cell.row >= rowStart &&
-                cell.row <= rowEnd
-            ) {
-                // Mark other cells as occupied
-                cell.component = null;
-            }
+    if(newGridCell.component != 'Empty'){
+        sandBoxCells.value.forEach(row => {
+            row.forEach(cell => {
+                if (cell.col === newGridCell.col && cell.row === newGridCell.row) {
+                    // Set the anchor cell
+                    cell.width = newGridCell.width;
+                    cell.height = newGridCell.height;
+                    cell.component = newGridCell.component;
+                } else if (
+                    cell.col >= colStart &&
+                    cell.col <= colEnd &&
+                    cell.row >= rowStart &&
+                    cell.row <= rowEnd
+                ) {
+                    // Mark other cells as occupied
+                    cell.component = null;
+                }
+            });
         });
-    });
+    }
 
-    console.log(sandBoxCells.value);
     startCell.value = null;
 }
 const resetGrid = () => {
@@ -90,7 +108,13 @@ const resetGrid = () => {
         } as GridCell))
     );
 };
-
+const openSelect = () =>{
+    isSelectOpen.value = true
+}
+const selectComponent = (component: string) => {
+    selectedComponent.value = component;
+    isSelectOpen.value = false; // Close the modal
+};
 const visibleCells = computed(() =>
     sandBoxCells.value.flat().filter(cell => cell.component !== null)
 );
@@ -139,6 +163,19 @@ const visibleCells = computed(() =>
             </div>
         </section> 
     </main>
+    <Modal v-if="isSelectOpen" :title="'Select Component'" @close="isSelectOpen = false ">
+        <div class="flex flex-col gap-2">
+            <button
+                v-for="(_, name) in componentMap"
+                :key="name"
+                class="px-4 py-2 bg-primary text-white rounded"
+                @click="selectComponent(name)"
+            >
+                {{ name }}
+            </button>
+        </div>
+    </Modal>
+
     <Modal v-if="isHelpOpen" :title="'Help'" @close="isHelpOpen = false">
         <p>hello im help</p>
     </Modal>
