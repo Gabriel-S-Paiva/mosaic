@@ -2,7 +2,8 @@
 import { ref, computed, watch } from 'vue';
 import Modal from "./Modal.vue";
 import Timer from "./Timer.vue";
-import Notes from "./Notes.vue"
+import Notes from "./Notes.vue";
+import PdfReader from './PdfReader.vue';
 // Interface Declaration
 interface GridCell {
     width:number,
