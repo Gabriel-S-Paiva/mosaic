@@ -1,89 +1,55 @@
 <!-- Todo: Fix Timer Settings -->
 <!-- The timer object isn't being updated properly -->
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
-  import Mosaic from './Mosaic.vue';
-  import Modal from './Modal.vue';
+import { useTimerStore } from "../stores/timerStore";
+import { ref, watch } from 'vue';
+import Mosaic from './Mosaic.vue';
+import Modal from './Modal.vue';
 
-  const timerSettings = ref(false)
-  const timer = ref({
-    time:1500,
-    count:1,
-    isFocus: true,
-  });
-  const status = ref('Focus')
-  const timerConfig = ref({
-    focus: 1500,
-    break: 300,
-    longBreak: 600,
-    nBreak:4,
-    goal: 4
-  })
-  const draftConfig = ref({ ...timerConfig.value || { focus: 1500, break: 300, longBreak: 600, nBreak: 4, goal: 4 } });
-  const isPlaying = ref(false);
-  const emit = defineEmits(['finished'])
-  let timeObj:number
-  const startTimer = () => {
-    isPlaying.value = true
-    timeObj = setInterval(()=>{
-      timer.value.time--
-      formatTimer(timer.value.time)
-    }, 1000)
+// Store
+const timerStore = useTimerStore()
+
+// Define Variables
+const timerSettings = ref(false)
+const draftConfig = ref({ ...timerStore.timerConfig || { focus: 1500, break: 300, longBreak: 600, nBreak: 4, goal: 4 } });
+const emit = defineEmits(['finished'])
+
+// Define functions
+const formatTimer = (secondsTotal: number): string => {
+  let minutes:number = Math.floor(secondsTotal/60);
+  let seconds:number = secondsTotal%60;
+  let secondsLeft:string;
+  if(seconds<10){
+    secondsLeft = '0'+String(seconds)
+  }else{
+    secondsLeft = String(seconds)
   }
-  const pauseTimer = () => {
-    isPlaying.value = false
-    clearInterval(timeObj)
+  const timeLeft:string = String(minutes) + ':' + secondsLeft;
+  return timeLeft
+}
+const openSettings = () => {
+    draftConfig.value = { ...timerStore.timerConfig };
+    timerSettings.value = true;
+}
+const updateConfig = () => {
+  console.log(draftConfig.value )
+  timerStore.timerConfig = { ...draftConfig.value };
+  timerStore.timer.isFocus = true;
+  timerStore.timer.time = timerStore.timerConfig.focus;
+  timerSettings.value = false;
+}
+
+// Define Watcher
+watch(() => timerStore.timer.time, (newTime) => {
+  if (newTime === 0) {
+    timerStore.nextTimer();
   }
-  const nextTimer = () => {
-    if(timer.value.isFocus){
-      if(timer.value.count === timerConfig.value.nBreak){
-          // status.value.type = "Long Break"
-          timer.value.time = timerConfig.value.longBreak
-          emit('finished')
-          status.value = "Long Break"
-      }else {
-        status.value = "Break"
-        timer.value.time = timerConfig.value.break
-      }
-    }else{
-      if(status.value == "Break"){
-        timer.value.count ++;
-      } else {
-        timer.value.count = 1;
-      }
-      status.value = "Focus"
-      timer.value.time = timerConfig.value.focus
-    }
-    timer.value.isFocus = !timer.value.isFocus
+});
+watch(() => timerStore.status, (status) => {
+  if (status === 'Long Break') {
+    emit('finished')
   }
-  const formatTimer = (secondsTotal: number): string => {
-    let minutes:number = Math.floor(secondsTotal/60);
-    let seconds:number = secondsTotal%60;
-    let secondsLeft:string;
-    if(seconds<10){
-      secondsLeft = '0'+String(seconds)
-    }else{
-      secondsLeft = String(seconds)
-    }
-    const timeLeft:string = String(minutes) + ':' + secondsLeft;
-    return timeLeft
-  }
-  const openSettings = () => {
-      draftConfig.value = { ...timerConfig.value };
-      timerSettings.value = true;
-  }
-  const updateConfig = () => {
-    console.log(draftConfig.value )
-    timerConfig.value = { ...draftConfig.value };
-    timer.value.isFocus = true;
-    timer.value.time = timerConfig.value.focus;
-    timerSettings.value = false;
-  }
-  watch(() => timer.value.time, (newTime) => {
-    if (newTime === 0) {
-      nextTimer();
-    }
-  });
+});
 </script>
 
 <template>
@@ -99,21 +65,21 @@
         </div>
     </div>
     <div class="p-5">
-        <h3 class="w-fit bg-primary rounded-t px-2 py-1 text-white text-base font-bold font-['Switzer']">{{ status }}</h3>
-        <Mosaic :timeElapsed="(timerConfig.focus - timer.time)" :totalTimer="timerConfig.focus" :status="status"/>
-        <p class="flex justify-center text-primary text-4xl font-bold font-['Nippo']">{{ formatTimer(timer.time) }}</p>
+        <h3 class="w-fit bg-primary rounded-t px-2 py-1 text-white text-base font-bold font-['Switzer']">{{ timerStore.status }}</h3>
+        <Mosaic :timeElapsed="(timerStore.timerConfig.focus - timerStore.timer.time)" :totalTimer="timerStore.timerConfig.focus" :status="timerStore.status"/>
+        <p class="flex justify-center text-primary text-4xl font-bold font-['Nippo']">{{ formatTimer(timerStore.timer.time) }}</p>
         <div class="flex flex-col xl:flex-row justify-between gap-6">
             <button class="w-full h-10 bg-primary rounded flex items-center justify-center">
-                <span v-if="isPlaying" @click="pauseTimer" class="material-symbols-outlined text-white w-full flex items-center">pause</span>
-                <span v-else @click="startTimer" class="material-symbols-outlined text-white w-full flex items-center">play_arrow</span>
+                <span v-if="timerStore.timer.isRunning" @click="timerStore.pauseTimer" class="material-symbols-outlined text-white w-full flex items-center">pause</span>
+                <span v-else @click="timerStore.startTimer" class="material-symbols-outlined text-white w-full flex items-center">play_arrow</span>
             </button>
             <button class="w-full h-10 bg-primary rounded flex items-center justify-center">
-                <span @click="nextTimer" class="material-symbols-outlined text-white w-full flex items-center">skip_next</span>
+                <span @click="timerStore.nextTimer" class="material-symbols-outlined text-white w-full flex items-center">skip_next</span>
             </button>
         </div>
         <div class="flex justify-between pt-4">
-          <div v-for="done in timerConfig.goal" class="w-7 h-7">
-            <span v-if="done <= timer.count" class=" bg-primary block w-full h-full rounded-full"></span>
+          <div v-for="done in timerStore.timerConfig.goal" class="w-7 h-7">
+            <span v-if="done <= timerStore.timer.count" class=" bg-primary block w-full h-full rounded-full"></span>
             <span v-else class="bg-gray-600 block w-full h-full rounded-full"></span>
           </div>
         </div>
@@ -162,7 +128,7 @@
           <input
             id="number-of-breaks"
             type="number"
-            v-model="draftConfig.nBreak"
+            v-model="draftConfig.nBreaks"
             class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="Enter number of breaks"
           />
