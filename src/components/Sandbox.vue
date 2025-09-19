@@ -3,6 +3,7 @@ import { useGridStore } from "../stores/gridStore";
 import type { GridCell } from "../stores/gridStore";
 import { ref } from 'vue'
 import Modal from "./Modal.vue";
+import Task from "./Tasks.vue"
 import Timer from "./Timer.vue";
 import Notes from "./Notes.vue";
 
@@ -11,6 +12,7 @@ const gridStore = useGridStore();
 
 // Component map
 const componentMap: Record<string, any> = {
+    Task,
     Timer,
     Notes,
     Empty: null,
@@ -23,7 +25,9 @@ const isHelpOpen = ref(false)
 
 // Drag-and-Drop Functions
 const startDrag = (cell: GridCell) => {
-    startCell.value = { row: cell.row, col: cell.col };
+    if(editMode.value){
+        startCell.value = { row: cell.row, col: cell.col };
+    }
 };
 
 const endDrag = async (cell: GridCell) => {
