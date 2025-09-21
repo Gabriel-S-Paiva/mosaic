@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Imports of Components and vue built in function
+// Imports of Components and vue built-in function
 import { ref, onMounted } from 'vue'
 import { useTaskStore } from '../stores/taskStore'
 import type { Task } from '../stores/taskStore'
@@ -21,7 +21,7 @@ const taskToEdit = ref<Task>({
   estimatedTime:1
 });
 const newTask = ref<Task>({
-  id: getNextId(),
+  id: -1,
   title:'',
   description:'',
   finished:false,
@@ -45,10 +45,16 @@ const cancelTask = () => {
   }
   addTaskModal.value = false
 }
-function getNextId()  {
-  return taskStore.tasks.length > 0 ?
-  Math.max(...taskStore.tasks.map((task) => task.id)) :
-  1;
+const addTaskFunction = (task: Task) => {
+  task.id = taskStore.tasks.length > 0 ?
+      Math.max(...taskStore.tasks.map((task: Task) => task.id)) + 1 :
+      1;
+  taskStore.addTask(task)
+  addTaskModal.value = false
+}
+const editTaskFunction = (task: Task) => {
+  taskStore.editTask(task)
+  editTaskModal.value = false
 }
 
 defineExpose({ pomodoroCompleted: taskStore.pomodoroCompleted })
@@ -248,7 +254,7 @@ onMounted(() => {
         <button
           type="button"
           class="px-4 py-2 text-sm font-bold text-white bg-primary rounded"
-          @click="taskStore.addTask(newTask), addTaskModal = false"
+          @click="addTaskFunction(newTask)"
         >
           Save Task
         </button>
@@ -305,7 +311,7 @@ onMounted(() => {
           <button
             type="button"
             class="px-4 py-2 text-sm font-bold text-white bg-primary rounded"
-            @click="taskStore.editTask(taskToEdit), editTaskModal = false"
+            @click="editTaskFunction(taskToEdit)"
           >
             Save Changes
           </button>

@@ -50,10 +50,12 @@ export const useTaskStore = defineStore('task', () => {
     })
     // Define Actions
     const selectTask = (task:Task) => {
-        currentTask.value = task;
+        const found = tasks.value.find(t => t.id === task.id);
+        if (found) currentTask.value = found;
     }
     const getNextTask = () => {
-        currentTask.value = tasks.value.find(task => !task.finished) || {
+        const next = tasks.value.find(task => !task.finished);
+        currentTask.value = next || {
             id: 0,
             title: 'No Task Found',
             description: 'This is just a placeholder. Lets create a new task.',
@@ -79,9 +81,10 @@ export const useTaskStore = defineStore('task', () => {
         getNextTask();
     }
     const completeTask = (task: Task) => {
+        if (!task || task.id === 0) return
         const index = tasks.value.findIndex(t => t.id == task.id)
-        if(index!==-1){
-            tasks.value[index].finished = true;
+        if (index !== -1) {
+            tasks.value[index].finished = true
         }
         getNextTask();
     }
