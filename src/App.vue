@@ -1,13 +1,9 @@
 <script setup lang="ts">
-  import Sidebar from "./components/Sidebar.vue"
   import Navbar from "./components/Navbar.vue"
-  import Sandbox from "./components/Sandbox.vue";
+  import { RouterView } from "vue-router"
 </script>
 
 <template >
   <Navbar />
-  <div class="px-10 grid grid-cols-1 md:grid-cols-12 gap-4">
-    <Sandbox/>
-    <Sidebar/>
-  </div>
+  <RouterView />
 </template>
