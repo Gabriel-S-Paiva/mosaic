@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from "vue-router";
 // Import Views
 import HomeView from "../views/HomeView.vue";
 import ProfileView from "../views/ProfileView.vue";
+import LoginView from "../views/LoginView.vue";
 
 const routes = [
     {
@@ -16,6 +17,15 @@ const routes = [
         name: "Profile",
         component: ProfileView
     },
+    {
+        path: "/login",
+        name: "Login",
+        component: LoginView,
+    },
+    {
+        path: "/:catchAll(.*)",
+        redirect: "/",
+    }
 ]
 
 const router = createRouter({

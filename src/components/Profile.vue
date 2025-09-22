@@ -3,8 +3,11 @@
 </script>
 
 <template>
-  <div class="col-span-12 md:col-span-4 bg-white rounded-lg p-6 h-full">
-    <div class="flex flex-col items-center space-y-6 h-full">
+  <div class="col-span-12 md:col-span-4 bg-white rounded-lg h-200">
+    <header class="px-5 py-2 bg-primary rounded-t-lg">
+      <h2 class="text-white text-xl font-bold font-['Switzer']">Profile</h2>
+    </header>
+    <main class="flex flex-col items-center p-6 space-y-6">
       <!-- Profile Picture -->
       <div class="w-24 h-24 bg-primary rounded-full flex items-center justify-center text-white text-3xl font-bold mt-8">
         JD
@@ -27,7 +30,7 @@
           <p class="text-xs text-secondary uppercase tracking-wide text-center">Current Status</p>
           <div class="flex justify-center mt-2">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary text-white">
-              🔥 Active
+              Active
             </span>
           </div>
         </div>
@@ -46,6 +49,6 @@
           <p class="text-center text-xs text-secondary mt-2">Expert Level</p>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>

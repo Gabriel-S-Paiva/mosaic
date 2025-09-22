@@ -3,8 +3,11 @@
 </script>
 
 <template>
-  <div class="col-span-12 md:col-span-8 bg-white rounded-lg p-6 h-full">
-    <div class="space-y-6 h-full flex flex-col">
+  <div class="col-span-12 md:col-span-8 bg-white rounded-lg h-full">
+    <header class="px-5 py-2 bg-primary rounded-t-lg">
+      <h2 class="text-white text-xl font-bold font-['Switzer']">Usage Statistics</h2>
+    </header>
+    <main class="space-y-6 p-6 flex flex-col">
       <!-- Header -->
       <div class="border-b border-secondary border-opacity-20 pb-4">
         <h3 class="text-2xl font-semibold text-dark">Productivity Dashboard</h3>
@@ -81,7 +84,7 @@
       </div>
       
       <!-- Quick Actions -->
-      <div class="grid grid-cols-3 gap-3 pt-4 border-t border-secondary border-opacity-20">
+      <div class="grid grid-cols-3 gap-3 pt-4 mt-10 border-t border-secondary border-opacity-20">
         <button class="bg-primary hover:bg-primary hover:opacity-90 text-white text-sm font-medium py-3 px-4 rounded-md transition-all duration-200">
           Start Session
         </button>
@@ -92,6 +95,6 @@
           View Report
         </button>
       </div>
-    </div>
+    </main>
   </div>
 </template>
