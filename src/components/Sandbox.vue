@@ -6,6 +6,7 @@ import Modal from "./Modal.vue";
 import Task from "./Tasks.vue"
 import Timer from "./Timer.vue";
 import Notes from "./Notes.vue";
+import Reader from "./Reader.vue";
 
 // Use the grid store
 const gridStore = useGridStore();
@@ -13,6 +14,7 @@ const gridStore = useGridStore();
 // Component map
 const componentMap: Record<string, any> = {
     Task,
+    Reader,
     Timer,
     Notes,
     Empty: null,
