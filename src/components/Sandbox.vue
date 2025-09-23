@@ -7,6 +7,8 @@ import Task from "./Tasks.vue"
 import Timer from "./Timer.vue";
 import Notes from "./Notes.vue";
 import Reader from "./Reader.vue";
+import FlashCard from "./FlashCard.vue";
+import MusicPlayer from "./MusicPlayer.vue";
 
 // Use the grid store
 const gridStore = useGridStore();
@@ -14,6 +16,8 @@ const gridStore = useGridStore();
 // Component map
 const componentMap: Record<string, any> = {
     Task,
+    MusicPlayer,
+    FlashCard,
     Reader,
     Timer,
     Notes,
